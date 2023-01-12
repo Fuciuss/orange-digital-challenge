@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 
-
 import {
   Bars3Icon,
   EllipsisVerticalIcon,
@@ -12,7 +11,7 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/solid";
 
-const VideoTile = (props) => {
+const VideoTile = (props: { image: string }) => {
   const { image } = props;
 
   return (
@@ -31,7 +30,7 @@ const VideoTile = (props) => {
   );
 };
 
-const DetailCard = (props) => {
+const DetailCard = (props: { name: string; image: string }) => {
   const name = props.name;
   const image = props.image;
 
@@ -72,7 +71,22 @@ const DetailCard = (props) => {
   );
 };
 
-function SliderWindow() {}
+interface Video {
+  id: number;
+  image: string;
+}
+
+interface Person {
+  id: number;
+  name: string;
+  image: string;
+}
+
+interface Data {
+  videos: Video[];
+  people: Person[];
+}
+
 
 function App() {
   const [count, setCount] = useState(0);
@@ -83,33 +97,28 @@ function App() {
 
   const [toggleScreen, setToggleScreen] = useState(true);
 
-  const [people, setPeople] = useState([])
-  const [videos, setVideos] = useState([])
+  const [people, setPeople] = useState<Person[]>([]);
+  const [videos, setVideos] = useState<Video[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
 
 
+
   useEffect(() => {
-    fetch("/api/getitems").then((res) => res.json()).then((data) => {
+    fetch("/api/getitems")
+      .then((res) => res.json())
+      .then((data: Data) => {
+        setPeople(data.people? data.people : []);
+        setVideos(data.videos? data.videos : []);
+        setIsLoading(false);
 
-      
-          
-      setPeople(data.people)
-      setVideos(data.videos)
-      setIsLoading(false)
-    })
-
-
-
-  })
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
   // const { isLoading, data, error } = useQuery(["fetchData"], fetchData);
 
   if (isLoading) return <div>Loading...</div>;
-
-
-
-
 
   function handleSelectedTab() {
     setSelectedToggle(!selectedToggle);
@@ -187,7 +196,7 @@ function App() {
               </div>
             </div>
             <div className="mt-4 space-y-4">
-              {videos.videos.map((video) => (
+              {videos.map((video) => (
                 <VideoTile key={video.id} image={video.image} />
               ))}
             </div>
@@ -234,7 +243,7 @@ function App() {
             </div>
 
             <ul className="mt-2 space-y-2 divide-y divide-gray-200 px-1">
-              {people.people.map((person) => (
+              {people.map((person) => (
                 <DetailCard
                   key={person.id}
                   name={person.name}
